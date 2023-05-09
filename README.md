@@ -21,7 +21,14 @@ My task for applying to the Junior Developer position at Scandiweb.
 
 ## You can check frontend code here: [scandiweb-task-frontend](https://github.com/im-py-dev/scandiweb-task-frontend)
 
-## Deployed app using Vercel: [Scandiweb test](https://scandiweb-task-frontend.vercel.app)
+## Deployed app using Vercel: [Preview](https://scandiweb-task-frontend.vercel.app)
 
 ## QA Test Results:
 ![alt text](https://user-images.githubusercontent.com/94250125/235841132-1220cd6c-1fe2-4b60-be33-2856f80bf9c6.png)
+
+## Email me? 
+<p align="left" >
+<a href="mailto:im.py.dev@gmail.com" target="_blank">
+<img src="https://img.shields.io/badge/gmail-D14836?&style=for-the-badge&logo=gmail&logoColor=white" />
+</a>
+</p>
