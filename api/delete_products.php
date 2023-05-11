@@ -1,39 +1,28 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: *"); // Here we should add only our frontend domains
 header("Access-Control-Allow-Methods: DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 
-// Include database configuration
-require_once '../config/database.php';
 
-// Instantiate product object
-require_once '../objects/product.php';
+// Check if the request method is DELETE
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    
+    // Instantiate product controller object
+    require_once '../controllers/ProductController.php';
 
-// Get the SKUs of the products to delete
-$skusToDelete = json_decode($_POST['skusToDelete']);
+    // Get the SKUs of the products to delete
+    $skusToDelete = json_decode(file_get_contents('php://input'), true);
 
-// Check if the SKUs to delete were provided
-if (empty($skusToDelete)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'No SKUs to delete provided']);
+    $productController = new ProductController($conn);
+    $productController->deleteProduct($skusToDelete);
+
+} elseif ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+
+} else {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
     exit();
 }
-
-// Loop through all SKUs and delete the corresponding products from the database
-foreach ($skusToDelete as $sku) {
-    // Check if the SKU is valid
-    if (empty($sku)) {
-        continue;
-    }
-
-    $product = new Product($sku);
-    if (!$product->delete($conn)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Failed to delete product with SKU: ' . $sku]);
-        exit();
-    }
-}
-
-http_response_code(204);
-exit();
 ?>

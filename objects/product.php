@@ -1,276 +1,117 @@
 <?php
 
 
-class Product {
-    public $id;
-    public $sku;
-    public $name;
-    public $price;
-    public $product_type;
+abstract class Product {
+    protected $id;
+    protected $sku;
+    protected $name;
+    protected $price;
+    protected $product_type;
 
-    public function __construct($sku, $name = null, $price = null, $product_type = null) {
+    public function __construct(string $sku, string $name = null, float $price = null, string $product_type = null)
+    {
         $this->sku = $sku;
         $this->name = $name;
         $this->price = $price;
         $this->product_type = $product_type;
-  }
+        
+    }
 
-    public function getId() {
+    public function getId(): int
+    {
     return $this->id;
     }
     
-    public function getSku() {
+    public function getSku(): string
+    {
     return $this->sku;
     }
     
-    public function getName() {
+    public function getName(): string
+    {
     return $this->name;
     }
     
-    public function getPrice() {
+    public function getPrice(): float
+    {
     return $this->price;
     }
     
-    public function getProductType() {
+    public function getProductType(): string
+    {
     return $this->product_type;
     }
 
-    public function setId($id) {
+    public function setId(int $id): void
+    {
     $this->id = $id;
     }
 
-    public function setSku($sku) {
+    public function setSku(string $sku): void
+    {
     $this->sku = $sku;
     }
 
-    public function setName($name) {
+    public function setName(string $name): void
+    {
     $this->name = $name;
     }
 
-    public function setPrice($price) {
+    public function setPrice(float $price): void
+    {
     $this->price = $price;
     }
 
-    public function setProductType($product_type) {
+    public function setProductType(string $product_type): void
+    {
     $this->product_type = $product_type;
     }
     
-    public static function getAll($conn) {
+    public static function executePreparedStatement(PDO $conn, string $query, array $params): bool
+    {
+        $stmt = $conn->prepare($query);
+        foreach ($params as $paramName => $paramValue) {
+            $stmt->bindParam($paramName, $paramValue);
+        }
+        return $stmt->execute();
+    }
+    
+    public static function getAll(PDO $conn): array
+    {
     $products = array();
     $result = $conn->query("SELECT * FROM products");
-    while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-        $product_type = $row['product_type'];
-        $product = ProductFactory::createProduct($product_type, $row['sku'], $row['name'], $row['price'], $row['value']);
+    while ($row = $result->fetch(PDO::FETCH_OBJ)) {
+        $product = ProductFactory::createProduct($row->product_type, $row->sku, $row->name, $row->price, $row->value);
         $products[] = $product;
     }
     $result->closeCursor();
     return $products;
     }
-
-    public function delete($conn) {
+    
+    public static function delete(PDO $conn, string $sku): bool
+    {
         // Make sure the SKU property is set
-        if (!isset($this->sku)) {
+        if (!isset($sku)) {
             return false;
         }
-    
-        // Prepare the DELETE statement
+
         $query = "DELETE FROM `products` WHERE `sku` = :sku";
-    
-        // Prepare the statement
-        $stmt = $conn->prepare($query);
-    
-        // Bind parameters
-        $stmt->bindParam(':sku', $this->sku);
-    
-        // Execute the statement
-        if ($stmt->execute()) {
-            // Product deleted successfully
+        $params = array(':sku' => $sku);
+        $result = self::executePreparedStatement($conn, $query, $params);
+
+        if ($result)
+        {
             return true;
         }
-        // Error deleting product
         return false;
     }
-}
 
-class ProductFactory {
-    public static function createProduct($type, $sku, $name, $price, $value) {
-
-        switch($type) {
-            case 'DVD':
-                return new DVDProduct($sku, $name, $price, $value);
-                break;
-            case 'Book':
-                return new BookProduct($sku, $name, $price, $value);
-                break;
-            case 'Furniture':
-                return new FurnitureProduct($sku, $name, $price, $value);
-                break;
-            default:
-                throw new Exception('Invalid product type');
-        }
-    }
-}
-
-class DVDProduct extends Product {
-    private $size;
-    
-    public function __construct($sku, $name, $price, $size) {
-        parent::__construct($sku, $name, $price, "DVD");
-        $this->size = $size;
-    }
-
-    public function getSize() {
-        return $this->size;
-    }
-    
-    public function getAttribute() {
-        return $this->getSize() . ' MB';
-    }
-
-    public function save($conn) {
-        $stmt = $conn->prepare("INSERT INTO products (sku, name, price, product_type, value) 
-                                VALUES (:sku, :name, :price, :product_type, :size)");
-        $stmt->execute([
-            ':sku' => $this->sku,
-            ':name' => $this->name,
-            ':price' => $this->price,
-            ':product_type' => $this->product_type,
-            ':size' => $this->size,
-        ]);
+    public static function skuExists(PDO $conn, string $sku): bool
+    {
+        $stmt = $conn->prepare("SELECT * FROM products WHERE sku=:sku");
+        $stmt->bindParam(':sku', $sku);
+        $stmt->execute();
         return $stmt->rowCount() > 0;
+    }
+
 }
-
-    public static function getAll($conn) {
-        $products = array();
-        $result = $conn->query("SELECT * FROM products WHERE product_type = 'DVD'");
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $product = new DVDProduct($row['sku'], $row['name'], $row['price'], $row['value']);
-            $product->setId($row['id']);
-            $products[] = $product;
-        }
-        $result->closeCursor();
-        return $products;
-    }
-}
-
-class BookProduct extends Product {
-    private $weight;
-    
-    public function __construct($sku, $name, $price, $weight) {
-        parent::__construct($sku, $name, $price, "Book");
-        $this->weight = $weight;
-    }
-
-    public function getWeight() {
-        return $this->weight;
-    }
-    
-    public function getAttribute() {
-        return $this->getWeight() . ' Kg';
-    }
-
-    public function save($conn) {
-    $stmt = $conn->prepare("INSERT INTO products (sku, name, price, product_type, value) 
-                            VALUES (:sku, :name, :price, :product_type, :weight)");
-    $stmt->execute([
-        ':sku' => $this->sku,
-        ':name' => $this->name,
-        ':price' => $this->price,
-        ':product_type' => $this->product_type,
-        ':weight' => $this->weight,
-    ]);
-    return $stmt->rowCount() > 0;
-}
-
-    public static function getAll($conn) {
-        $products = array();
-        $result = $conn->query("SELECT * FROM products WHERE product_type = 'Book'");
-        while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $product = new BookProduct($row['sku'], $row['name'], $row['price'], $row['value']);
-            $product->setId($row['id']);
-            $products[] = $product;
-        }
-        $result->closeCursor();
-        return $products;
-    }
-}
-
-class FurnitureProduct extends Product {
-    private $height;
-    private $width;
-    private $length;
-    
-    public function __construct($sku, $name, $price, $dimensions) {
-        parent::__construct($sku, $name, $price, "Furniture");
-
-        $dimensions_array = explode("x", $dimensions);
-
-        $this->dimensions = $dimensions;
-        $this->height = $dimensions_array[0];
-        $this->width = $dimensions_array[1];
-        $this->length = $dimensions_array[2];
-    }
-    
-    public function getHeight() {
-        return $this->height;
-    }
-    
-    public function setHeight($height) {
-        $this->height = $height;
-    }
-    
-    public function getWidth() {
-        return $this->width;
-    }
-    
-    public function setWidth($width) {
-        $this->width = $width;
-    }
-    
-    public function getLength() {
-        return $this->length;
-    }
-    
-    public function setLength($length) {
-        $this->length = $length;
-    }
-    
-    public function getAttribute() {
-        return $this->dimensions;
-    }
-
-    public function save($conn) {
-    $stmt = $conn->prepare("INSERT INTO products (sku, name, price, product_type, value) 
-                            VALUES (:sku, :name, :price, :product_type, :dimensions)");
-    $stmt->execute([
-        ':sku' => $this->getSku(),
-        ':name' => $this->getName(),
-        ':price' => $this->getPrice(),
-        ':product_type' => $this->product_type,
-        ':dimensions' => $this->dimensions,
-    ]);
-
-    return $stmt->rowCount() > 0;
-}
-
-
-    public static function getAll($conn) {
-        $db = new Database();
-        $conn = $db->getConnection();
-        
-        $sql = "SELECT * FROM products WHERE product_type = 'Furniture'";
-        $result = $conn->query($sql);
-        $products = array();
-
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $product = new FurnitureProduct($row['sku'], $row['name'], $row['price'], $row['value']);
-                $products[] = $product;
-            }
-        }
-        
-        return $products;
-    }
-}
-
-?>
