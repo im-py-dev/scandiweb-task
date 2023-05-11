@@ -4,8 +4,6 @@ header("Access-Control-Allow-Origin: *"); // Here we should add only our fronten
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 
-ini_set('display_errors', 1);
-
 // Check if the form has been submitted
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     
@@ -25,4 +23,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
     exit();
 }
-?>

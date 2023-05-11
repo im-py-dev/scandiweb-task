@@ -68,6 +68,7 @@ abstract class Product {
     }
     
     public static function executePreparedStatement(PDO $conn, string $query, array $params): bool
+    // not important - I made it just for testing how I can make code more reuseale.
     {
         $stmt = $conn->prepare($query);
         foreach ($params as $paramName => $paramValue) {
@@ -78,40 +79,53 @@ abstract class Product {
     
     public static function getAll(PDO $conn): array
     {
-    $products = array();
-    $result = $conn->query("SELECT * FROM products");
-    while ($row = $result->fetch(PDO::FETCH_OBJ)) {
-        $product = ProductFactory::createProduct($row->product_type, $row->sku, $row->name, $row->price, $row->value);
-        $products[] = $product;
-    }
-    $result->closeCursor();
-    return $products;
+        $products = array();
+        
+        try {
+            $result = $conn->query("SELECT * FROM products");
+            while ($row = $result->fetch(PDO::FETCH_OBJ)) {
+                $product = ProductFactory::createProduct($row->product_type, $row->sku, $row->name, $row->price, $row->value);
+                $products[] = $product;
+            }
+            $result->closeCursor();
+            return $products;
+        } catch (PDOException $e) {
+            throw new Exception("Error fetching products: " . $e->getMessage());
+        }
     }
     
     public static function delete(PDO $conn, string $sku): bool
     {
-        // Make sure the SKU property is set
         if (!isset($sku)) {
             return false;
         }
-
-        $query = "DELETE FROM `products` WHERE `sku` = :sku";
-        $params = array(':sku' => $sku);
-        $result = self::executePreparedStatement($conn, $query, $params);
-
-        if ($result)
-        {
-            return true;
+        
+        try {
+            $query = "DELETE FROM `products` WHERE `sku` = :sku";
+            $params = array(':sku' => $sku);
+            $result = self::executePreparedStatement($conn, $query, $params);
+            if ($result)
+            {
+                return true;
+            }
+            return false;
+        } catch (PDOException $e) {
+                throw new Exception("Error deleteing products: " . $e->getMessage());
         }
-        return false;
     }
 
     public static function skuExists(PDO $conn, string $sku): bool
     {
-        $stmt = $conn->prepare("SELECT * FROM products WHERE sku=:sku");
-        $stmt->bindParam(':sku', $sku);
-        $stmt->execute();
-        return $stmt->rowCount() > 0;
+        try {
+            $query = "SELECT * FROM products WHERE sku=:sku";
+            $stmt = $conn->prepare($query);
+            $stmt->bindParam(':sku', $sku);
+            $stmt->execute();
+            return $stmt->rowCount() > 0;
+            
+        } catch (PDOException $e) {
+            throw new Exception("Error chcking sku Exist: " . $e->getMessage());
+        }
     }
 
 }

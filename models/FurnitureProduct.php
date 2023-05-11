@@ -68,7 +68,7 @@ class FurnitureProduct extends Product
         ':name' => $this->getName(),
         ':price' => $this->getPrice(),
         ':product_type' => $this->getProductType(),
-        ':dimensions' => $this->getAttribute(),
+        ':dimensions' => $this->getAttribute()
         ]);
 
         return $stmt->rowCount() > 0;

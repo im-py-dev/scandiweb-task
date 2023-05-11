@@ -25,4 +25,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
     exit();
 }
-?>
+

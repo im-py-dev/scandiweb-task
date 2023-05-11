@@ -42,7 +42,7 @@ class BookProduct extends Product
             ':name' => $this->getName(),
             ':price' => $this->getPrice(),
             ':product_type' => $this->getProductType(),
-            ':weight' => $this->getWeight(),
+            ':weight' => $this->getWeight()
         ]);
         return $stmt->rowCount() > 0;
     }

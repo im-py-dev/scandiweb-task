@@ -42,7 +42,7 @@ class DvdProduct extends Product
             ':name' => $this->getName(),
             ':price' => $this->getPrice(),
             ':product_type' => $this->getProductType(),
-            ':size' => $this->getSize(),
+            ':size' => $this->getSize()
         ]);
         return $stmt->rowCount() > 0;
     }
