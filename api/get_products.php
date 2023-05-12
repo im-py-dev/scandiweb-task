@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     
     // Instantiate product controller object
-    require_once '../controllers/ProductController.php';
+    require_once($_SERVER['DOCUMENT_ROOT'] . '/controllers/ProductController.php');
 
     // Get all products
     $productController = new ProductController($conn);

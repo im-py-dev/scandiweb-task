@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     
     // Instantiate product controller object
-    require_once '../controllers/ProductController.php';
+    require_once($_SERVER['DOCUMENT_ROOT'] . '/controllers/ProductController.php');
 
     // Get the SKUs of the products to delete
     $skusToDelete = json_decode(file_get_contents('php://input'), true);

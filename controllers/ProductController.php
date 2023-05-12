@@ -1,13 +1,13 @@
 <?php
 
 // Include BaseController class
-require_once 'BaseController.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . '/controllers/BaseController.php');
 
 // Include database configuration
-require_once '../config/database.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . '/config/database.php');
 
 // Instantiate product object
-require_once '../models/ProductFactory.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . '/models/ProductFactory.php');
 
 
 class ProductController extends BaseController

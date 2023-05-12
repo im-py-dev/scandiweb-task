@@ -1,8 +1,8 @@
 <?php
 
-require_once 'FurnitureProduct.php';
-require_once 'BookProduct.php';
-require_once 'DvdProduct.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . '/models/productTypes/FurnitureProduct.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/models/productTypes/BookProduct.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/models/productTypes/DvdProduct.php');
 
 
 class ProductFactory {

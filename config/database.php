@@ -1,7 +1,7 @@
 <?php
 
 // Load the environment variables
-require_once __DIR__ . '/env.php';
+require_once($_SERVER['DOCUMENT_ROOT'] . '/config/env.php');
 
 // Database configuration
 $dbhost = $_ENV['DB_HOST'] ?? 'localhost';

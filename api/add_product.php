@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
     // Instantiate product controller object
-    require_once '../controllers/ProductController.php';
+    require_once($_SERVER['DOCUMENT_ROOT'] . '/controllers/ProductController.php');
 
     // Retrieve the raw data from the request body
     $data = file_get_contents('php://input');
