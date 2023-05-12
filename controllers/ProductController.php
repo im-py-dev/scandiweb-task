@@ -87,7 +87,7 @@ class ProductController extends BaseController
         if (empty($product->sku) || empty($product->name) || empty($product->price) || empty($product->productType) || empty($product->value))
             return false;
 
-        if ( $product->productType == 'Furniture' && count(explode("x", $product->value)) == 3 )
+        if ( $product->productType == 'Furniture' && count(explode("x", $product->value)) != 3 )
             return false;
 
         if (!is_numeric($product->price) || $product->price <= 0)
