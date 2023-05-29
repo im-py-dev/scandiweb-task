@@ -38,24 +38,24 @@ class ProductController extends BaseController
     exit;
 }
 
-    public function deleteProduct($skusToDelete): JSON
+    public function deleteProducts($skusToDelete): JSON
     {
     if (empty($skusToDelete)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'No SKUs to delete provided']);
         exit();
     }
-    
-    foreach ($skusToDelete as $sku) {
-        if (!Product::delete($this->conn, $sku)) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'error' => 'Failed to delete product with SKU: ' . $sku]);
-            exit();
-        }
+
+    $result = Product::deleteProducts($this->conn, $skusToDelete);
+
+    if ($result) {
+        http_response_code(204);
+        echo json_encode(['success' => true, 'message' => "Products deleted successfully"]);
+    } else {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Failed to delete products']);
     }
 
-    http_response_code(204);
-    echo json_encode(['success' => true, 'message' => "Product deleted successfully"]);
     exit();
     }
     
