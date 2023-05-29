@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     $skusToDelete = json_decode(file_get_contents('php://input'), true);
 
     $productController = new ProductController($conn);
-    $productController->deleteProduct($skusToDelete);
+    $productController->deleteProducts($skusToDelete);
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -25,4 +25,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
     exit();
 }
-
