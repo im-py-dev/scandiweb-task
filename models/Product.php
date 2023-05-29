@@ -67,16 +67,6 @@ abstract class Product {
     $this->product_type = $product_type;
     }
     
-    public static function executePreparedStatement(PDO $conn, string $query, array $params): bool
-    // not important - I made it just for testing how I can make code more reuseale.
-    {
-        $stmt = $conn->prepare($query);
-        foreach ($params as $paramName => $paramValue) {
-            $stmt->bindParam($paramName, $paramValue);
-        }
-        return $stmt->execute();
-    }
-    
     public static function getAll(PDO $conn): array
     {
         $products = array();
@@ -94,25 +84,25 @@ abstract class Product {
         }
     }
     
-    public static function delete(PDO $conn, string $sku): bool
+    public static function deleteProducts(PDO $conn, array $skus): bool
     {
-        if (!isset($sku)) {
-            return false;
-        }
-        
-        try {
-            $query = "DELETE FROM `products` WHERE `sku` = :sku";
-            $params = array(':sku' => $sku);
-            $result = self::executePreparedStatement($conn, $query, $params);
-            if ($result)
-            {
-                return true;
-            }
-            return false;
-        } catch (PDOException $e) {
-                throw new Exception("Error deleteing products: " . $e->getMessage());
-        }
+    if (empty($skus)) {
+        return false;
     }
+    
+    try {
+        $skuPlaceholders = implode(',', array_fill(0, count($skus), '?'));
+        $query = "DELETE FROM `products` WHERE `sku` IN ($skuPlaceholders)";
+        $stmt = $conn->prepare($query);
+        $stmt->execute($skus);
+        $result = $stmt->rowCount() > 0;
+        
+        return $result;
+    } catch (PDOException $e) {
+        throw new Exception("Error deleting products: " . $e->getMessage());
+    }
+}
+
 
     public static function skuExists(PDO $conn, string $sku): bool
     {
